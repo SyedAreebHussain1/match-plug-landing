@@ -43,18 +43,15 @@ const CategoryHeader: React.FC = () => {
     try {
       setIsSearching(true);
 
-      const response = await axios.get(
-        `${API_URL}/posts`,
-        {
-          params: {
-            search: searchValue,
-            per_page: 5,
-            page: 1,
-            orderby: "date",
-            order: "desc",
-          },
+      const response = await axios.get(`${API_URL}/posts`, {
+        params: {
+          search: searchValue,
+          per_page: 5,
+          page: 1,
+          orderby: "date",
+          order: "desc",
         },
-      );
+      });
 
       setSearchPosts(response.data);
     } catch (error) {
