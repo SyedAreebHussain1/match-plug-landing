@@ -3,7 +3,7 @@
 import { DateTime } from "luxon";
 import Image from "next/image";
 import { Loader } from "./Loader";
-import { useGetData } from "@/app/Hooks/useGetData";
+import { useGetData } from "@/app/Hooks/UseGetDataArgs";
 import { useEffect, useMemo, useState } from "react";
 import parse from "html-react-parser";
 import DOMPurify from "dompurify";
@@ -20,7 +20,7 @@ export type Blog = {
     id: string;
     name: string;
   };
-  featured_image: string;
+  jetpack_featured_media_url: string;
   comment_count: number;
   views: number;
   categories: string[];
@@ -37,9 +37,9 @@ export function BlogDetailPage() {
     setBlogId(id);
   }, []);
 
-  const { data, isFetching } = useGetData<Blog>({
+  const { data, isFetching } = useGetData<any>({
     key: ["blog", blogId ?? ""],
-    path: `post/${blogId}`,
+    path: `posts/${blogId}`,
     enabled: !!blogId,
   });
 
@@ -50,8 +50,10 @@ export function BlogDetailPage() {
   }
 
   useMemo(() => {
-    document.title = data?.title ? stripHTML(data.title) : "";
-  }, [data?.title]);
+    document.title = data?.title?.rendered
+      ? stripHTML(data?.title?.rendered)
+      : "";
+  }, [data?.title?.rendered]);
 
   if (isFetching)
     return (
@@ -68,14 +70,14 @@ export function BlogDetailPage() {
     <div className=" max-w-4xl mx-auto px-4 py-10">
       <h1
         className="text-3xl font-bold mb-6"
-        dangerouslySetInnerHTML={{ __html: data.title }}
+        dangerouslySetInnerHTML={{ __html: data?.title?.rendered }}
       ></h1>
 
-      {data.featured_image && (
+      {data?.jetpack_featured_media_url && (
         <div className="mb-6">
           <img
-            src={data.featured_image || "person.webp"}
-            alt={data.title}
+            src={data.jetpack_featured_media_url || "person.webp"}
+            alt={data?.title?.rendered}
             onError={(e) => {
               (e.target as HTMLImageElement).src = "person.webp";
             }}
@@ -87,14 +89,14 @@ export function BlogDetailPage() {
       )}
 
       <div className="flex items-center text-gray-500 text-sm mb-6 gap-6 flex-wrap">
-        <span>👤 {data.author?.name}</span>
-        <span>📅 {dateObj.toFormat("MMMM d, yyyy")}</span>
-        <span>⏰ {dateObj.toFormat("h:mm a")}</span>
-        <span>💬 {data.comment_count} Comments</span>
+        <span>👤 {data?.yoast_head_json?.author}</span>
+        <span>📅 {dateObj?.toFormat("MMMM d, yyyy")}</span>
+        <span>⏰ {dateObj?.toFormat("h:mm a")}</span>
+        {/* <span>💬 {data.comment_count} Comments</span> */}
       </div>
 
       <div className="prose max-w-none prose-p:leading-relaxed prose-a:text-blue-600 hover:prose-a:underline prose-h3:text-xl prose-h3:font-semibold">
-        <HaalandArticle content={data.content} />
+        <HaalandArticle content={data?.content?.rendered} />
       </div>
     </div>
   );

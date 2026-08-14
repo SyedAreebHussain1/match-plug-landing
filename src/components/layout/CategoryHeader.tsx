@@ -1,10 +1,13 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Logo from "./Logo";
 import { twMerge } from "tailwind-merge";
 import { useGetData } from "@/app/Hooks/useGetData";
 import headerData from "@/components/utils/Collection/header-menu-response.json";
+import axios from "axios";
+import { handleClick } from "../utils/helper";
+import { API_URL } from "../utils/constant";
 
 type MenuItem = {
   id: number;
@@ -23,13 +26,44 @@ type MenuResponse = {
 
 const CategoryHeader: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
+  const [search, setSearch] = useState("");
+  const [searchPosts, setSearchPosts] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const { data } = useGetData<MenuResponse>({
     key: ["header-categories"],
     path: "menu/left-menu",
     initialData: headerData,
   });
+  const getSearchPosts = async (searchValue: string) => {
+    if (!searchValue.trim()) {
+      setSearchPosts([]);
+      return;
+    }
 
+    try {
+      setIsSearching(true);
+
+      const response = await axios.get(
+        `${API_URL}/posts`,
+        {
+          params: {
+            search: searchValue,
+            per_page: 5,
+            page: 1,
+            orderby: "date",
+            order: "desc",
+          },
+        },
+      );
+
+      setSearchPosts(response.data);
+    } catch (error) {
+      console.error("Search API Error:", error);
+      setSearchPosts([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
@@ -37,12 +71,22 @@ const CategoryHeader: React.FC = () => {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (search.trim()) {
+        getSearchPosts(search);
+      } else {
+        setSearchPosts([]);
+      }
+    }, 500);
 
+    return () => clearTimeout(timer);
+  }, [search]);
   return (
     <header
       className={twMerge(
         `fixed top-0 left-0 right-0 z-50 bg-black/80 border-b border-gray-800`,
-        isMobileMenuOpen && "bg-black"
+        isMobileMenuOpen && "bg-black",
       )}
     >
       <div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-8">
@@ -53,7 +97,76 @@ const CategoryHeader: React.FC = () => {
               <Logo />
             </Link>
           </div>
+          <div className="hidden md:flex items-center">
+            <div className="relative">
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSearch(value);
+                }}
+                placeholder="Search..."
+                className="w-64 rounded-md bg-white px-3 py-2 text-sm text-black outline-none"
+              />
+              {/* Search Results */}
+              {search.trim() && (
+                <div className="absolute left-0 top-full mt-2 w-96 overflow-hidden rounded-md bg-white shadow-xl">
+                  {isSearching ? (
+                    <div className="p-4 text-sm text-gray-500">
+                      Searching...
+                    </div>
+                  ) : searchPosts.length === 0 ? (
+                    <div className="p-4 text-sm text-gray-500">
+                      No posts found
+                    </div>
+                  ) : (
+                    <div>
+                      {searchPosts?.map((post) => {
+                        const image = post?.jetpack_featured_media_url;
 
+                        return (
+                          <Link
+                            key={post.id}
+                            href={`/blog/${post.slug}`}
+                            onClick={() => {
+                              handleClick(post.id);
+                              setSearch("");
+                              setSearchPosts([]);
+                            }}
+                            className="flex items-center gap-3 border-b border-gray-200 px-4 py-3 text-sm text-gray-800 transition hover:bg-gray-100"
+                          >
+                            {/* Image */}
+                            <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md">
+                              {image ? (
+                                <img
+                                  src={image}
+                                  alt={post.title?.rendered || "Post image"}
+                                  className="h-full w-full object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center bg-gray-200 text-xs text-gray-500">
+                                  No Image
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Title */}
+                            <div
+                              className="line-clamp-2"
+                              dangerouslySetInnerHTML={{
+                                __html: post.title?.rendered || "",
+                              }}
+                            />
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
           <nav className="hidden md:flex items-center space-x-8">
             {data?.items.map((item) => (
               <Link
