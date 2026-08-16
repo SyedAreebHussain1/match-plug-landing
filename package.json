@@ -20,7 +20,6 @@
     "html-react-parser": "^5.2.6",
     "lucide-react": "^0.542.0",
     "luxon": "^3.7.1",
-    "moment": "^2.30.1",
     "next": "15.5.20",
     "nuqs": "^2.6.0",
     "react": "19.1.0",

@@ -3,10 +3,10 @@
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
-import moment from "moment";
 import "swiper/css";
 import "swiper/css/navigation";
 import { v3, v4 } from "uuid";
+import { DateTime } from "luxon";
 
 import { useState } from "react";
 import { HotNews } from "./HotNews";
@@ -88,8 +88,10 @@ export interface ApiResponseMagazinGrid {
   data: Magazine[];
   meta: Meta;
 }
-const formatDate = (date: string | Date) => {
-  return moment(date).format("MMMM D, YYYY");
+const formatDate = (date: string) => {
+  // return moment(date).format("MMMM D, YYYY");
+  const dateObj = DateTime.fromISO(date).setZone("local");
+  return dateObj.toFormat("MMMM d, yyyy");
 };
 export default function BlogPage() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -498,7 +500,9 @@ export default function BlogPage() {
                     className="h-full w-[100px] object-cover"
                   />
                   <div className="p-3">
-                    <p className="text-sm text-gray-500">📅 {formatDate(news.date)}</p>
+                    <p className="text-sm text-gray-500">
+                      📅 {formatDate(news.date)}
+                    </p>
 
                     <h3 className="font-semibold">{news?.title?.rendered}</h3>
                   </div>
