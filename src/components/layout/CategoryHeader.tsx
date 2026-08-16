@@ -113,7 +113,19 @@ const CategoryHeader: React.FC = () => {
               <Logo />
             </Link>
           </div>
-          <div className="hidden md:flex items-center">
+
+          <nav className="hidden md:flex items-center space-x-8">
+            {data?.items.map((item) => (
+              <Link
+                key={item.slug}
+                href={!item.slug ? "/" : `/blog/category/${item.slug}`}
+                className="text-gray-300 hover:text-white transition-colors duration-200 font-medium"
+              >
+                {item.title}
+              </Link>
+            ))}
+          </nav>
+          <div className="hidden md:flex items-center" >
             <div ref={searchRef} className="relative">
               {/* Search Input */}
               <input
@@ -126,7 +138,7 @@ const CategoryHeader: React.FC = () => {
 
               {/* Search Results */}
               {search?.trim() && (
-                <div className="absolute left-0 top-full z-50 mt-2 max-h-[450px] w-96 overflow-y-auto overflow-x-hidden rounded-md bg-white shadow-xl">
+                <div className="absolute right-0 top-full z-50 mt-2 max-h-[450px] w-96 overflow-y-auto overflow-x-hidden rounded-md bg-white shadow-xl">
                   {isSearching ? (
                     <div className="p-4 text-sm text-gray-500">
                       Searching...
@@ -138,8 +150,8 @@ const CategoryHeader: React.FC = () => {
                   ) : (
                     <div>
                       {searchPosts.map((post) => {
-                        const image = post?.jetpack_featured_media_url;
-
+                        const image =
+                          post?.jetpack_featured_media_url || "/person.webp";
                         return (
                           <Link
                             key={post.id}
@@ -180,18 +192,6 @@ const CategoryHeader: React.FC = () => {
               )}
             </div>
           </div>
-          <nav className="hidden md:flex items-center space-x-8">
-            {data?.items.map((item) => (
-              <Link
-                key={item.slug}
-                href={!item.slug ? "/" : `/blog/category/${item.slug}`}
-                className="text-gray-300 hover:text-white transition-colors duration-200 font-medium"
-              >
-                {item.title}
-              </Link>
-            ))}
-          </nav>
-
           {/* Mobile Burger Button */}
           <div className="md:hidden flex items-center justify-center">
             <button

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Tabs } from "@/components/sections/Tabs";
 import { API_URL } from "@/components/utils/constant";
-
+import { notFound } from "next/navigation";
 type Props = {
   params: Promise<{
     slug: string;
@@ -98,11 +98,7 @@ export default async function Page({ params }: Props) {
   const post = await getPost(slug);
 
   if (!post) {
-    return (
-      <div className="mt-20 max-w-4xl mx-auto px-4 py-10">
-        <h1 className="text-2xl font-bold">Post Not Found</h1>
-      </div>
-    );
+    return notFound();
   }
 
   const seo = post.yoast_head_json;

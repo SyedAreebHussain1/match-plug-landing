@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useGetData } from "@/app/Hooks/useGetData";
+import { useGetData } from "@/app/Hooks/UseGetDataArgs";
 import Link from "next/link";
 import { handleClick } from "../utils/helper";
 import { Loader } from "./Loader";
 import { useDebounce } from "@uidotdev/usehooks";
 import { useRouter } from "next/navigation";
 import { useQueryState } from "nuqs";
+import HaalandArticleForCat from "./HaalandArticleForCat";
 
 interface Post {
   id: number;
@@ -29,8 +30,10 @@ type BlogResponse = {
 
 export function Posts({
   slug,
+  categoryId,
 }: {
   slug: string;
+  categoryId?: number;
   isSearched?: boolean;
   search?: string;
 }) {
@@ -45,35 +48,26 @@ export function Posts({
 
   const debouncedSearch = useDebounce(query, 500) ?? "";
 
-  const { data: posts, isFetching } = useGetData<BlogResponse>({
+  // const { data: posts, isFetching } = useGetData<BlogResponse>({
+  //   key: ["category-posts", slug, currentPage],
+  //   path: `posts/category/${slug}?page=${currentPage}&limit=10`,
+  //   enabled: !isSearched,
+  // });
+  const { data: posts, isFetching }: any = useGetData<BlogResponse>({
     key: ["category-posts", slug, currentPage],
-    path: `posts/category/${slug}?page=${currentPage}&limit=10`,
-    enabled: !isSearched,
+    path: `posts?per_page=10&page=${currentPage}&categories=${categoryId}&orderby=date&order=desc`,
+    enabled: !isSearched && !!categoryId,
   });
-
-  const { data: searchedPosts, isFetching: isSearchFetching } =
-    useGetData<BlogResponse>({
-      key: ["posts-searched", currentPage, debouncedSearch],
-      path: `posts?page=${currentPage}&limit=10&search=${debouncedSearch}`,
-      enabled: isSearched || !!debouncedSearch,
-    });
-
   useMemo(() => {
     if (posts) {
-      setTotalPages(posts?.meta?.pages || 1);
+      // setTotalPages(posts?.meta?.pages || 1);
+      setTotalPages(30);
     }
   }, [posts, isFetching]);
-
-  useMemo(() => {
-    if (isSearched || debouncedSearch || query) {
-      setTotalPages(searchedPosts?.meta?.pages || 1);
-    }
-  }, [isSearchFetching, searchedPosts, isSearched, debouncedSearch, query]);
-
   const getPaginationRange = (
     currentPage: number,
     totalPages: number,
-    siblingCount: number = 1
+    siblingCount: number = 1,
   ) => {
     const totalNumbers = siblingCount * 2 + 5;
 
@@ -104,7 +98,7 @@ export function Posts({
     return range;
   };
 
-  const filteredPosts = isSearched ? searchedPosts : posts;
+  const filteredPosts: any = posts;
 
   const renderPagination = () => {
     const pages = getPaginationRange(currentPage, totalPages);
@@ -142,7 +136,7 @@ export function Posts({
             >
               {page}
             </button>
-          )
+          ),
         )}
 
         <button
@@ -158,10 +152,11 @@ export function Posts({
       </div>
     );
   };
+
   return (
     <div className="max-w-7xl  mx-auto p-4 grid grid-cols-1 lg:grid-cols-4 gap-6">
       <div className="space-y-6">
-        <div className="flex">
+        {/* <div className="flex">
           <input
             type="text"
             placeholder="Search..."
@@ -185,18 +180,18 @@ export function Posts({
           >
             🔍
           </button>
-        </div>
+        </div> */}
       </div>
 
       <div className="lg:col-span-3">
-        {isFetching || isSearchFetching ? (
+        {isFetching ? (
           <div className="flex items-center justify-center w-full lg:col-span-3 h-screen">
             <Loader />
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {!!filteredPosts?.data?.length ? (
-              filteredPosts.data?.map((post) => (
+            {!!filteredPosts?.length ? (
+              filteredPosts?.map((post: any) => (
                 <Link
                   key={post.id}
                   onClick={() => {
@@ -206,34 +201,44 @@ export function Posts({
                     handleClick(post?.id);
                   }}
                   href={`/blog/${post.slug}`}
+                  className="h-full"
                 >
-                  <div className="rounded-xl shadow-md overflow-hidden bg-white flex flex-col">
+                  <div className="h-[500px] rounded-xl shadow-md overflow-hidden bg-white flex flex-col">
+                    {/* Image */}
                     <img
-                      src={post.featured_image ?? "person.webp"}
-                      alt={post.title}
+                      src={post?.jetpack_featured_media_url || "/person.webp"}
+                      alt={post?.title?.rendered}
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = "/person.webp";
                       }}
                       width={600}
                       height={300}
-                      className="h-52 w-full object-cover"
+                      className="h-52 w-full object-cover shrink-0"
                     />
 
-                    <div className="p-4 flex flex-col flex-grow">
-                      <p className="text-sm text-gray-500 mb-2">
+                    {/* Content */}
+                    <div className="p-4 flex flex-col flex-1">
+                      {/* Date */}
+                      <p className="text-sm text-gray-500 mb-2 shrink-0">
                         {new Date(post.date).toDateString()}
                       </p>
 
-                      <h3 className="font-bold text-lg mb-2">{post.title}</h3>
-                      <p className="text-gray-700 text-sm flex-grow">
-                        {post.excerpt.slice(0, 150)}...
+                      {/* Title */}
+                      <h3 className="font-bold text-lg mb-2 line-clamp-2">
+                        {post?.title?.rendered}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-gray-700 text-sm line-clamp-3">
+                        <HaalandArticleForCat
+                          content={post?.excerpt?.rendered?.slice(0, 150)}
+                        />
                       </p>
-                      <a
-                        href={`/blog/${post.id}`}
-                        className="mt-3 text-green-600 font-medium hover:underline"
-                      >
+
+                      {/* Read More */}
+                      <p className="mt-auto pt-3 text-green-600 font-medium hover:underline">
                         Read More »
-                      </a>
+                      </p>
                     </div>
                   </div>
                 </Link>
@@ -250,7 +255,7 @@ export function Posts({
 
         {!isFetching &&
           totalPages > 2 &&
-          !!filteredPosts?.data.length &&
+          !!filteredPosts.length &&
           renderPagination()}
       </div>
     </div>
