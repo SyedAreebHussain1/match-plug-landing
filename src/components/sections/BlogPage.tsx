@@ -83,6 +83,7 @@ export interface Meta {
   current_page: number;
 }
 
+
 export interface ApiResponseMagazinGrid {
   success: boolean;
   data: Magazine[];
