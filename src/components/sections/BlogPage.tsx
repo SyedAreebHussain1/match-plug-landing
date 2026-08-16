@@ -83,13 +83,12 @@ export interface Meta {
   current_page: number;
 }
 
-
 export interface ApiResponseMagazinGrid {
   success: boolean;
   data: Magazine[];
   meta: Meta;
 }
-const formatDate = (date: string) => {
+export const formatDate = (date: string) => {
   // return moment(date).format("MMMM D, YYYY");
   const dateObj = DateTime.fromISO(date).setZone("local");
   return dateObj.toFormat("MMMM d, yyyy");
@@ -100,7 +99,7 @@ export default function BlogPage() {
     data: trendingNews,
     isLoading,
     isError,
-  } = useGetData<any[]>({
+  }: any = useGetData<any[]>({
     key: ["posts", currentPage, 8],
     path: "posts",
     params: {
@@ -111,7 +110,7 @@ export default function BlogPage() {
     },
   });
 
-  const { data: americanPosts, isFetching: isAmericanPostsFetching } =
+  const { data: americanPosts, isFetching: isAmericanPostsFetching }: any =
     useGetData<any[]>({
       key: ["american-posts", 1, 4, "220,228,176,204,227"],
       path: "posts",
@@ -123,30 +122,28 @@ export default function BlogPage() {
         order: "desc",
       },
     });
-  const { data: megezinGrid, isFetching: isMagezinGridFeatchin } = useGetData<
-    any[]
-  >({
-    key: ["megezin-grid", 1, 6],
-    path: "posts",
-    params: {
-      per_page: 6,
-      page: 1,
-      orderby: "date",
-      order: "desc",
-    },
-  });
-  const { data: recentPosts, isFetching: isRecentPostsFetching } = useGetData<
-    any[]
-  >({
-    key: ["recent-posts", 1, 8],
-    path: "posts",
-    params: {
-      per_page: 8,
-      page: 1,
-      orderby: "date",
-      order: "desc",
-    },
-  });
+  const { data: megezinGrid, isFetching: isMagezinGridFeatchin }: any =
+    useGetData<any[]>({
+      key: ["megezin-grid", 1, 6],
+      path: "posts",
+      params: {
+        per_page: 6,
+        page: 1,
+        orderby: "date",
+        order: "desc",
+      },
+    });
+  const { data: recentPosts, isFetching: isRecentPostsFetching }: any =
+    useGetData<any[]>({
+      key: ["recent-posts", 1, 8],
+      path: "posts",
+      params: {
+        per_page: 8,
+        page: 1,
+        orderby: "date",
+        order: "desc",
+      },
+    });
 
   const totalPages = 100; // Replace with actual total pages from your API response
 
@@ -167,116 +164,114 @@ export default function BlogPage() {
           </div>
         }
 
-        <div hidden={isLoading} className="lg:col-span-2">
-          <h2 className="text-2xl font-bold mb-4">Trending News</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {trendingNews?.map((news) => (
-              <Link
-                onClick={() => {
-                  handleClick(news?.id);
-                }}
-                onMouseDown={() => {
-                  handleClick(news?.id);
-                }}
-                key={news?.id}
-                href={`/blog/${news.slug}`}
-              >
-                <div className="rounded-xl shadow-lg overflow-hidden bg-white">
-                  <img
-                    src={news?.jetpack_featured_media_url || "person.webp"}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = "person.webp";
-                    }}
-                    alt={news.title?.rendered || "News Image"}
-                    className="h-40 w-full object-cover"
-                  />
-                  <div className="p-4">
-                    <p className="text-sm text-gray-500">
-                      {formatDate(news.date)}
-                    </p>
-                    <Link
-                      onClick={() => {
-                        handleClick(news?.id);
+        {trendingNews?.length > 0 && (
+          <div hidden={isLoading} className="lg:col-span-2">
+            <h2 className="text-2xl font-bold mb-4">Trending News</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch">
+              {trendingNews?.map((news) => (
+                <Link
+                  key={news?.id}
+                  href={`/blog/${news.slug}`}
+                  onClick={() => handleClick(news?.id)}
+                  onMouseDown={() => handleClick(news?.id)}
+                  className="h-full"
+                >
+                  <div className="h-full rounded-xl shadow-lg overflow-hidden bg-white flex flex-col">
+                    {/* Image */}
+                    <img
+                      src={news?.jetpack_featured_media_url || "person.webp"}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "person.webp";
                       }}
-                      href={`/blog/${news?.slug}`}
-                    >
+                      alt={news.title?.rendered || "News Image"}
+                      className="h-40 w-full object-cover flex-shrink-0"
+                    />
+
+                    {/* Content */}
+                    <div className="p-4 flex flex-col flex-1">
+                      <p className="text-sm text-gray-500">
+                        {formatDate(news.date)}
+                      </p>
+
                       <h3
                         dangerouslySetInnerHTML={{
                           __html: news.title?.rendered || "",
                         }}
-                        className="font-semibold mt-2"
-                      ></h3>
-                    </Link>
+                        className="font-semibold mt-2 line-clamp-4"
+                      />
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
+            </div>
+
+            <div className="flex justify-center mt-6">
+              <nav className="flex items-center gap-2">
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
+                  disabled={currentPage === 1}
+                  className="cursor-pointer px-3 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Prev
+                </button>
+
+                {/* Page numbers (max 4 visible) */}
+                {(() => {
+                  const maxVisible = 4;
+                  let start: number, end: number;
+
+                  if (totalPages <= maxVisible) {
+                    // Show all pages if total is less than maxVisible
+                    start = 1;
+                    end = totalPages;
+                  } else if (currentPage <= 2) {
+                    // Near the start
+                    start = 1;
+                    end = maxVisible;
+                  } else if (currentPage >= totalPages - 1) {
+                    // Near the end
+                    start = totalPages - maxVisible + 1;
+                    end = totalPages;
+                  } else {
+                    // Middle range
+                    start = currentPage - 1;
+                    end = currentPage + 2;
+                  }
+
+                  return Array.from({ length: end - start + 1 }, (_, i) => {
+                    const page = start + i;
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`cursor-pointer px-3 py-1 rounded-md border ${
+                          currentPage === page
+                            ? "bg-blue-600 text-white border-blue-600"
+                            : "border-gray-300 text-gray-600 hover:bg-gray-100"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  });
+                })()}
+
+                {/* Next button */}
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
+                  disabled={currentPage === totalPages}
+                  className="cursor-pointer px-3 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </nav>
+            </div>
           </div>
-
-          <div className="flex justify-center mt-6">
-            <nav className="flex items-center gap-2">
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                className="cursor-pointer px-3 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Prev
-              </button>
-
-              {/* Page numbers (max 4 visible) */}
-              {(() => {
-                const maxVisible = 4;
-                let start: number, end: number;
-
-                if (totalPages <= maxVisible) {
-                  // Show all pages if total is less than maxVisible
-                  start = 1;
-                  end = totalPages;
-                } else if (currentPage <= 2) {
-                  // Near the start
-                  start = 1;
-                  end = maxVisible;
-                } else if (currentPage >= totalPages - 1) {
-                  // Near the end
-                  start = totalPages - maxVisible + 1;
-                  end = totalPages;
-                } else {
-                  // Middle range
-                  start = currentPage - 1;
-                  end = currentPage + 2;
-                }
-
-                return Array.from({ length: end - start + 1 }, (_, i) => {
-                  const page = start + i;
-                  return (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`cursor-pointer px-3 py-1 rounded-md border ${
-                        currentPage === page
-                          ? "bg-blue-600 text-white border-blue-600"
-                          : "border-gray-300 text-gray-600 hover:bg-gray-100"
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  );
-                });
-              })()}
-
-              {/* Next button */}
-              <button
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-                className="cursor-pointer px-3 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
-            </nav>
-          </div>
-        </div>
+        )}
 
         <div>
           <h2 className="text-2xl font-bold mb-4">About Us</h2>
@@ -341,7 +336,7 @@ export default function BlogPage() {
               1024: { slidesPerView: 4 },
             }}
           >
-            {megezinGrid?.map((news) => (
+            {megezinGrid?.map((news: any) => (
               <SwiperSlide key={v4()}>
                 <Link
                   onClick={() => {
@@ -377,67 +372,70 @@ export default function BlogPage() {
         </div>
       </div>
 
-      <div>
-        <header className="my-12">
-          <h1 className="text-4xl font-bold text-center">American Sports</h1>
-        </header>
-        <Swiper
-          modules={[Autoplay, Navigation]}
-          autoplay={{ delay: 3000 }}
-          navigation
-          loop
-          className="rounded-2xl overflow-hidden shadow shadow-neutral-40"
-        >
-          {americanPosts?.slice(0, 4)?.map((news) => (
-            <SwiperSlide key={v4()}>
-              <Link
-                onClick={() => {
-                  handleClick(news?.id);
-                }}
-                onMouseDown={() => {
-                  handleClick(news?.id);
-                }}
-                href={`/blog/${news?.slug}`}
-              >
-                <div
-                  className="h-[500px] bg-cover bg-center flex flex-col justify-end"
-                  style={{
-                    backgroundImage: `url(${news.jetpack_featured_media_url ?? "person.webp"})`,
+      {americanPosts?.length > 0 && (
+        <div>
+          <header className="my-12">
+            <h1 className="text-4xl font-bold text-center">American Sports</h1>
+          </header>
+          <Swiper
+            modules={[Autoplay, Navigation]}
+            autoplay={{ delay: 3000 }}
+            navigation
+            loop
+            className="rounded-2xl overflow-hidden shadow shadow-neutral-40"
+          >
+            {americanPosts?.map((news: any) => (
+              <SwiperSlide key={v4()}>
+                <Link
+                  onClick={() => {
+                    handleClick(news?.id);
                   }}
+                  onMouseDown={() => {
+                    handleClick(news?.id);
+                  }}
+                  href={`/blog/${news?.slug}`}
                 >
                   <div
-                    dangerouslySetInnerHTML={{ __html: news.title.rendered }}
-                    className="bg-blue-700 w-full p-4 text-white text-xl font-bold"
-                  ></div>
+                    className="h-[500px] bg-cover bg-center flex flex-col justify-end"
+                    style={{
+                      backgroundImage: `url(${news.jetpack_featured_media_url || "person.webp"})`,
+                    }}
+                  >
+                    <div
+                      dangerouslySetInnerHTML={{ __html: news.title.rendered }}
+                      className="bg-blue-700 w-full p-4 text-white text-xl font-bold"
+                    ></div>
 
-                  <div className="bg-blue-50  w-full p-4  ">
-                    <p className="text-gray-700 text-sm mb-2"></p>
-                    <div className="flex justify-between items-center">
-                      <a
-                        // href={news.link}
-                        href={`/blog/${news?.slug}`}
-                        className="text-blue-600 font-medium hover:underline"
-                      >
-                        Read More
-                      </a>
-                      <span className="flex items-center text-gray-500 text-xs">
-                        <i className="far fa-clock mr-1"></i>
-                        {formatDate(news.date)}
-                      </span>
+                    <div className="bg-blue-50  w-full p-4  ">
+                      <p className="text-gray-700 text-sm mb-2"></p>
+                      <div className="flex justify-between items-center">
+                        <a
+                          // href={news.link}
+                          href={`/blog/${news?.slug}`}
+                          className="text-blue-600 font-medium hover:underline"
+                        >
+                          Read More
+                        </a>
+                        <span className="flex items-center text-gray-500 text-xs">
+                          <i className="far fa-clock mr-1"></i>
+                          {formatDate(news.date)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </div>
+                </Link>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+      )}
 
-      <div>
-        <h2 className="text-2xl font-bold mb-4">Recent Posts</h2>
+      {recentPosts?.length > 0 && (
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Recent Posts</h2>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* {data?.featured && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* {data?.featured && (
             <Link
               onClick={() => {
                 handleClick(data?.featured?.id);
@@ -475,44 +473,45 @@ export default function BlogPage() {
             </Link>
           )} */}
 
-          <div
-            className={`col-span-1 lg:col-span-${
-              recentPosts?.length === 1 ? 2 : 3
-            } grid  grid-cols-1 md:grid-cols-2 gap-6`}
-          >
-            {recentPosts?.map((news) => (
-              <Link
-                key={v4()}
-                onClick={() => {
-                  handleClick(news?.id);
-                }}
-                onMouseDown={() => {
-                  handleClick(news?.id);
-                }}
-                href={`/blog/${news?.slug}`}
-              >
-                <div className="rounded-xl shadow-md flex overflow-hidden bg-white">
-                  <img
-                    src={news?.jetpack_featured_media_url || "person.webp"}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = "person.webp";
-                    }}
-                    alt={news?.title?.rendered}
-                    className="h-full w-[100px] object-cover"
-                  />
-                  <div className="p-3">
-                    <p className="text-sm text-gray-500">
-                      📅 {formatDate(news.date)}
-                    </p>
+            <div
+              className={`col-span-1 lg:col-span-${
+                recentPosts?.length === 1 ? 2 : 3
+              } grid grid-cols-1 md:grid-cols-2 gap-6`}
+            >
+              {recentPosts?.map((news: any) => (
+                <Link
+                  key={v4()}
+                  onClick={() => handleClick(news?.id)}
+                  onMouseDown={() => handleClick(news?.id)}
+                  href={`/blog/${news?.slug}`}
+                  className="h-[120px]"
+                >
+                  <div className="h-full rounded-xl shadow-md flex overflow-hidden bg-white items-stretch">
+                    <img
+                      src={news?.jetpack_featured_media_url || "person.webp"}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "person.webp";
+                      }}
+                      alt={news?.title?.rendered}
+                      className="w-[120px] h-full object-cover flex-shrink-0"
+                    />
 
-                    <h3 className="font-semibold">{news?.title?.rendered}</h3>
+                    <div className="p-3 flex flex-col justify-center overflow-hidden">
+                      <p className="text-sm text-gray-500">
+                        📅 {formatDate(news.date)}
+                      </p>
+
+                      <h3 className="font-semibold line-clamp-2">
+                        {news?.title?.rendered}
+                      </h3>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <style jsx>{`
         .animate-marquee {

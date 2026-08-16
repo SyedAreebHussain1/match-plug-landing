@@ -100,7 +100,7 @@ export function BlogPage() {
 
   return (
     <div className="mt-20 bg-gray-50   max-w-7xl mx-auto space-y-10">
-      <section className="max-w-6xl mx-auto ">
+      <section className="p-4 max-w-7xl mx-auto ">
         <Swiper
           modules={[Autoplay, Navigation, Pagination]}
           spaceBetween={20}
@@ -122,8 +122,8 @@ export function BlogPage() {
               >
                 <div className="relative h-96 rounded-xl overflow-hidden">
                   <img
-                    src={post.jetpack_featured_media_url}
-                    alt={post.title?.rendered}
+                    src={post?.jetpack_featured_media_url || "person.webp"}
+                    alt={post?.title?.rendered}
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute bottom-0    bg-opacity-50 text-white p-4 w-full">

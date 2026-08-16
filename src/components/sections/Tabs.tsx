@@ -9,6 +9,7 @@ export const Tabs = () => {
   const [activeTab, setActiveTab] = useState<
     "post" | "keyUpdates" | "topStories"
   >("post");
+  const [categories, setCategories] = useState<string[]>([]);
 
   const tabs = [
     { id: "post", label: "Post" },
@@ -17,9 +18,9 @@ export const Tabs = () => {
   ];
 
   const tabRenderer = {
-    post: <BlogDetailPage />,
-    keyUpdates: <LatestUpdates />,
-    topStories: <LatestStories />,
+    post: <BlogDetailPage setCategories={setCategories} />,
+    keyUpdates: <LatestUpdates categories={categories} />,
+    topStories: <LatestStories categories={categories} />,
   };
 
   return (

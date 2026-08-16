@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Logo from "./Logo";
 import { twMerge } from "tailwind-merge";
@@ -25,6 +25,7 @@ type MenuResponse = {
 };
 
 const CategoryHeader: React.FC = () => {
+  const searchRef = useRef<HTMLDivElement>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [searchPosts, setSearchPosts] = useState<any[]>([]);
@@ -46,8 +47,8 @@ const CategoryHeader: React.FC = () => {
       const response = await axios.get(`${API_URL}/posts`, {
         params: {
           search: searchValue,
-          per_page: 5,
-          page: 1,
+          // per_page: 100,
+          // page: 1,
           orderby: "date",
           order: "desc",
         },
@@ -79,6 +80,24 @@ const CategoryHeader: React.FC = () => {
 
     return () => clearTimeout(timer);
   }, [search]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setSearch("");
+        setSearchPosts([]);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   return (
     <header
       className={twMerge(
@@ -95,20 +114,19 @@ const CategoryHeader: React.FC = () => {
             </Link>
           </div>
           <div className="hidden md:flex items-center">
-            <div className="relative">
+            <div ref={searchRef} className="relative">
+              {/* Search Input */}
               <input
                 type="text"
                 value={search}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setSearch(value);
-                }}
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search..."
                 className="w-64 rounded-md bg-white px-3 py-2 text-sm text-black outline-none"
               />
+
               {/* Search Results */}
-              {search.trim() && (
-                <div className="absolute left-0 top-full mt-2 w-96 overflow-hidden rounded-md bg-white shadow-xl">
+              {search?.trim() && (
+                <div className="absolute left-0 top-full z-50 mt-2 max-h-[450px] w-96 overflow-y-auto overflow-x-hidden rounded-md bg-white shadow-xl">
                   {isSearching ? (
                     <div className="p-4 text-sm text-gray-500">
                       Searching...
@@ -119,7 +137,7 @@ const CategoryHeader: React.FC = () => {
                     </div>
                   ) : (
                     <div>
-                      {searchPosts?.map((post) => {
+                      {searchPosts.map((post) => {
                         const image = post?.jetpack_featured_media_url;
 
                         return (
@@ -133,7 +151,6 @@ const CategoryHeader: React.FC = () => {
                             }}
                             className="flex items-center gap-3 border-b border-gray-200 px-4 py-3 text-sm text-gray-800 transition hover:bg-gray-100"
                           >
-                            {/* Image */}
                             <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md">
                               {image ? (
                                 <img
@@ -148,7 +165,6 @@ const CategoryHeader: React.FC = () => {
                               )}
                             </div>
 
-                            {/* Title */}
                             <div
                               className="line-clamp-2"
                               dangerouslySetInnerHTML={{

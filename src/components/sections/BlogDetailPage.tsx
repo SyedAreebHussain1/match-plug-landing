@@ -27,7 +27,11 @@ export type Blog = {
   tags: string[];
 };
 
-export function BlogDetailPage() {
+export function BlogDetailPage({
+  setCategories,
+}: {
+  setCategories: (categories: string[]) => void;
+}) {
   const [blogId, setBlogId] = useState<string | null>(null);
 
   const path = usePathname();
@@ -49,12 +53,17 @@ export function BlogDetailPage() {
     return div.textContent || div.innerText || "";
   }
 
-  useMemo(() => {
-    document.title = data?.title?.rendered
-      ? stripHTML(data?.title?.rendered)
-      : "";
-  }, [data?.title?.rendered]);
+  // useMemo(() => {
+  //   document.title = data?.title?.rendered
+  //     ? stripHTML(data?.title?.rendered)
+  //     : "";
+  // }, [data?.title?.rendered]);
 
+  useEffect(() => {
+    if (data?.categories?.length > 0) {
+      setCategories(data?.categories || []);
+    }
+  }, [data?.categories]);
   if (isFetching)
     return (
       <div className="h-screen w-full flex items-center justify-center">
