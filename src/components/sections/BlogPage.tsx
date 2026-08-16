@@ -168,7 +168,7 @@ export default function BlogPage() {
           <div hidden={isLoading} className="lg:col-span-2">
             <h2 className="text-2xl font-bold mb-4">Trending News</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch">
-              {trendingNews?.map((news) => (
+              {trendingNews?.map((news: any) => (
                 <Link
                   key={news?.id}
                   href={`/blog/${news.slug}`}
