@@ -55,7 +55,7 @@ export function Posts({
   // });
   const { data: posts, isFetching }: any = useGetData<BlogResponse>({
     key: ["category-posts", slug, currentPage],
-    path: `posts?per_page=10&page=${currentPage}&categories=${categoryId}&orderby=date&order=desc`,
+    path: `posts?per_page=12&page=${currentPage}&categories=${categoryId}&orderby=date&order=desc`,
     enabled: !isSearched && !!categoryId,
   });
   useMemo(() => {
@@ -154,44 +154,16 @@ export function Posts({
   };
 
   return (
-    <div className="max-w-7xl  mx-auto p-4 grid grid-cols-1 lg:grid-cols-4 gap-6">
-      <div className="space-y-6">
-        {/* <div className="flex">
-          <input
-            type="text"
-            placeholder="Search..."
-            className=" border rounded-l-md px-3 py-2 w-full outline-none"
-            value={value ?? ""}
-            onChange={(e) => {
-              setValue(e.target.value);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                setQuery(e.currentTarget.value);
-                router.push(`/blog?s=${e.currentTarget.value}`);
-              }
-            }}
-          />
-          <button
-            onClick={() => {
-              router.push(`/blog?s=${value}`);
-            }}
-            className="bg-orange-500 cursor-pointer text-white px-4 rounded-r-md"
-          >
-            🔍
-          </button>
-        </div> */}
-      </div>
-
-      <div className="lg:col-span-3">
+    <div>
+      <div>
         {isFetching ? (
-          <div className="flex items-center justify-center w-full lg:col-span-3 h-screen">
+          <div className="flex items-center justify-center w-full h-screen">
             <Loader />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {!!filteredPosts?.length ? (
-              filteredPosts?.map((post: any) => (
+              filteredPosts.map((post: any) => (
                 <Link
                   key={post.id}
                   onClick={() => {
@@ -204,7 +176,6 @@ export function Posts({
                   className="h-full"
                 >
                   <div className="h-[500px] rounded-xl shadow-md overflow-hidden bg-white flex flex-col">
-                    {/* Image */}
                     <img
                       src={post?.jetpack_featured_media_url || "/person.webp"}
                       alt={post?.title?.rendered}
@@ -216,26 +187,21 @@ export function Posts({
                       className="h-52 w-full object-cover shrink-0"
                     />
 
-                    {/* Content */}
                     <div className="p-4 flex flex-col flex-1">
-                      {/* Date */}
-                      <p className="text-sm text-gray-500 mb-2 shrink-0">
+                      <p className="text-sm text-gray-500 mb-2">
                         {new Date(post.date).toDateString()}
                       </p>
 
-                      {/* Title */}
                       <h3 className="font-bold text-lg mb-2 line-clamp-2">
                         {post?.title?.rendered}
                       </h3>
 
-                      {/* Description */}
                       <p className="text-gray-700 text-sm line-clamp-3">
                         <HaalandArticleForCat
                           content={post?.excerpt?.rendered?.slice(0, 150)}
                         />
                       </p>
 
-                      {/* Read More */}
                       <p className="mt-auto pt-3 text-green-600 font-medium hover:underline">
                         Read More »
                       </p>
@@ -244,10 +210,8 @@ export function Posts({
                 </Link>
               ))
             ) : (
-              <div className="h-[500px] place-items-center grid mx-auto col-span-2">
-                <p className="col-span-2 text-center text-gray-500">
-                  No posts found.
-                </p>
+              <div className="h-[500px] place-items-center grid col-span-full">
+                <p className="text-center text-gray-500">No posts found.</p>
               </div>
             )}
           </div>
