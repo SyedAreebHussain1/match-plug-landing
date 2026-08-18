@@ -58,7 +58,7 @@ interface YesterdayMatch extends Match {
 }
 
 const FootballPredictionTable = async ({ title }: { title: string }) => {
-  const [todayResponse, yesterdayResponse, tomorrowResponse] =
+  const [todayResponse, yesterdayResponse, tomorrowResponse]: any =
     await Promise.all([
       getPredictionData("today"),
       getPredictionData("yesterday"),
@@ -68,15 +68,15 @@ const FootballPredictionTable = async ({ title }: { title: string }) => {
   // Make sure we always pass arrays
   const today = Array.isArray(todayResponse)
     ? todayResponse
-    : todayResponse?.data ?? [];
+    : (todayResponse?.data ?? []);
 
   const yesterday = Array.isArray(yesterdayResponse)
     ? yesterdayResponse
-    : yesterdayResponse?.data ?? [];
+    : (yesterdayResponse?.data ?? []);
 
   const tomorrow = Array.isArray(tomorrowResponse)
     ? tomorrowResponse
-    : tomorrowResponse?.data ?? [];
+    : (tomorrowResponse?.data ?? []);
 
   console.log("today", today);
   console.log("yesterday", yesterday);
