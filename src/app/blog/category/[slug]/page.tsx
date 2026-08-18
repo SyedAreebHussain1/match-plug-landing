@@ -125,6 +125,7 @@ export default async function Page({ params }: Props) {
 
     inLanguage: "en-US",
   };
+  console.log("category", category);
 
   return (
     <div className="mt-20 max-w-7xl mx-auto px-4 py-10">
@@ -136,7 +137,7 @@ export default async function Page({ params }: Props) {
         }}
       />
 
-      <Posts slug={slug} categoryId={category?.id} />
+      <Posts title={category?.name} slug={slug} categoryId={category?.id} />
     </div>
   );
 }

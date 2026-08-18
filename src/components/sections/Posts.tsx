@@ -31,9 +31,11 @@ type BlogResponse = {
 export function Posts({
   slug,
   categoryId,
+  title,
 }: {
   slug: string;
   categoryId?: number;
+  title?: string;
   isSearched?: boolean;
   search?: string;
 }) {
@@ -152,6 +154,11 @@ export function Posts({
 
   return (
     <div>
+      {title && (
+        <div className="text-2xl font-bold mb-4 flex justify-center">
+          {title}
+        </div>
+      )}
       <div>
         {isFetching ? (
           <div className="flex items-center justify-center w-full h-screen">
