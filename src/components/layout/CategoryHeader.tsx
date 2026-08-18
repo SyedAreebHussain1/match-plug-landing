@@ -44,7 +44,7 @@ const CategoryHeader: React.FC = () => {
     try {
       setIsSearching(true);
 
-      const response = await axios.get(`${API_URL}/posts`, {
+      const response = await axios.get(`${API_URL}/wp-json/wp/v2/posts`, {
         params: {
           search: searchValue,
           // per_page: 100,
@@ -149,7 +149,7 @@ const CategoryHeader: React.FC = () => {
                     </div>
                   ) : (
                     <div>
-                      {searchPosts.map((post) => {
+                      {searchPosts?.map((post) => {
                         const image =
                           post?.jetpack_featured_media_url || "/person.webp";
                         return (

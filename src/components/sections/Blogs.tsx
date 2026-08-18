@@ -76,7 +76,7 @@ export function BlogPage() {
   //   initialData: { data: [] },
   // });
   const {
-    data: posts,
+    data: response,
     isLoading,
     isError,
   } = useGetData<any[]>({
@@ -90,6 +90,8 @@ export function BlogPage() {
       order: "desc",
     },
   });
+
+  const posts = response?.data || [];
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">

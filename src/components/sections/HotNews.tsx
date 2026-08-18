@@ -29,7 +29,7 @@ export function HotNews() {
   //   path: "hot-news",
   // });
   const {
-    data: posts,
+    data: response,
     isLoading,
     isError,
   } = useGetData<any[]>({
@@ -42,6 +42,7 @@ export function HotNews() {
       order: "desc",
     },
   });
+  const posts = response?.data || [];
   if (isLoading) return <Loader />;
 
   return (

@@ -11,7 +11,7 @@ type Props = {
 
 async function getPost(slug: string) {
   const response = await fetch(
-    `${API_URL}/posts?slug=${encodeURIComponent(slug)}`,
+    `${API_URL}/wp-json/wp/v2/posts?slug=${encodeURIComponent(slug)}`,
     {
       next: {
         revalidate: 2,

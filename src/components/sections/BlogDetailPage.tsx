@@ -41,12 +41,14 @@ export function BlogDetailPage({
     setBlogId(id);
   }, []);
 
-  const { data, isFetching } = useGetData<any>({
+  const { data: response, isFetching } = useGetData<any>({
     key: ["blog", blogId ?? ""],
     path: `posts/${blogId}`,
     enabled: !!blogId,
   });
-
+  const data = response?.data;
+  const totalPosts = response?.total;
+  const totalPages = response?.totalPages;
   function stripHTML(html: string) {
     const div = document.createElement("div");
     div.innerHTML = html;

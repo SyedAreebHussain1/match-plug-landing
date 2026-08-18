@@ -31,7 +31,7 @@ type Data = {
 
 export function LatestUpdates({ categories }: { categories: string[] }) {
   const categoryIds = categories?.join(",");
-  const { data: posts, isFetching }: any = useGetData<Data>({
+  const { data: response, isFetching }: any = useGetData<Data>({
     key: ["post-by-category", categoryIds, 1, 5],
     path: "posts",
     params: {
@@ -42,6 +42,7 @@ export function LatestUpdates({ categories }: { categories: string[] }) {
       order: "desc",
     },
   });
+  const posts = response?.data || [];
 
   if (isFetching) {
     return (
@@ -58,7 +59,6 @@ export function LatestUpdates({ categories }: { categories: string[] }) {
       </div>
     );
   }
-
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">

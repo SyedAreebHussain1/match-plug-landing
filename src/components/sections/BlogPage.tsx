@@ -96,7 +96,7 @@ export const formatDate = (date: string) => {
 export default function BlogPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const {
-    data: trendingNews,
+    data: trendingResponse,
     isLoading,
     isError,
   }: any = useGetData<any[]>({
@@ -109,8 +109,12 @@ export default function BlogPage() {
       order: "desc",
     },
   });
+  const trendingNews = trendingResponse?.data || [];
+  // const totalPosts = trendingResponse?.totalPages || 0;
+  // const totalPages = trendingResponse?.total || 0;
+  const totalPages = trendingResponse?.totalPages || 0;
 
-  const { data: americanPosts, isFetching: isAmericanPostsFetching }: any =
+  const { data: americanResponse, isFetching: isAmericanPostsFetching }: any =
     useGetData<any[]>({
       key: ["american-posts", 1, 4, "220,228,176,204,227"],
       path: "posts",
@@ -122,7 +126,8 @@ export default function BlogPage() {
         order: "desc",
       },
     });
-  const { data: megezinGrid, isFetching: isMagezinGridFeatchin }: any =
+  const americanPosts = americanResponse?.data || [];
+  const { data: magazineResponse, isFetching: isMagezinGridFeatchin }: any =
     useGetData<any[]>({
       key: ["megezin-grid", 1, 6],
       path: "posts",
@@ -133,7 +138,8 @@ export default function BlogPage() {
         order: "desc",
       },
     });
-  const { data: recentPosts, isFetching: isRecentPostsFetching }: any =
+  const megezinGrid = magazineResponse?.data || [];
+  const { data: recentResponse, isFetching: isRecentPostsFetching }: any =
     useGetData<any[]>({
       key: ["recent-posts", 1, 8],
       path: "posts",
@@ -144,8 +150,8 @@ export default function BlogPage() {
         order: "desc",
       },
     });
-
-  const totalPages = 100; // Replace with actual total pages from your API response
+  const recentPosts = recentResponse?.data || [];
+  // const totalPages = 100; // Replace with actual total pages from your API response
 
   return (
     <div className="p-4 max-w-7xl mt-10 mx-auto  space-y-10">
@@ -474,9 +480,7 @@ export default function BlogPage() {
           )} */}
 
             <div
-              className={`col-span-1 lg:col-span-${
-                recentPosts?.length === 1 ? 2 : 3
-              } grid grid-cols-1 md:grid-cols-2 gap-6`}
+              className={`col-span-1 lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6`}
             >
               {recentPosts?.map((news: any) => (
                 <Link

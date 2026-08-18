@@ -31,7 +31,7 @@ type Data = {
 
 export function LatestStories({ categories }: { categories: string[] }) {
   const categoryIds = categories?.join(",");
-  const { data: posts, isFetching }: any = useGetData<Data>({
+  const { data: response, isFetching }: any = useGetData<Data>({
     key: ["post-by-category", categoryIds, 1, 4],
     path: "posts",
     params: {
@@ -42,6 +42,7 @@ export function LatestStories({ categories }: { categories: string[] }) {
       order: "desc",
     },
   });
+  const posts = response?.data || [];
   if (isFetching) {
     return (
       <div className="h-screen w-full flex items-center justify-center">

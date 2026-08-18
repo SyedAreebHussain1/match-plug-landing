@@ -39,7 +39,6 @@ export function Posts({
 }) {
   const [query, setQuery] = useQueryState("s");
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [value, setValue] = useState(query);
 
   const isSearched = typeof query === "string";
@@ -53,17 +52,15 @@ export function Posts({
   //   path: `posts/category/${slug}?page=${currentPage}&limit=10`,
   //   enabled: !isSearched,
   // });
-  const { data: posts, isFetching }: any = useGetData<BlogResponse>({
+  const { data: response, isFetching }: any = useGetData<BlogResponse>({
     key: ["category-posts", slug, currentPage],
     path: `posts?per_page=12&page=${currentPage}&categories=${categoryId}&orderby=date&order=desc`,
     enabled: !isSearched && !!categoryId,
   });
-  useMemo(() => {
-    if (posts) {
-      // setTotalPages(posts?.meta?.pages || 1);
-      setTotalPages(30);
-    }
-  }, [posts, isFetching]);
+  const posts = response?.data || [];
+  const totalPosts = response?.total || 0;
+  const totalPages = response?.totalPages || 0;
+
   const getPaginationRange = (
     currentPage: number,
     totalPages: number,
@@ -163,7 +160,7 @@ export function Posts({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {!!filteredPosts?.length ? (
-              filteredPosts.map((post: any) => (
+              filteredPosts?.map((post: any) => (
                 <Link
                   key={post.id}
                   onClick={() => {

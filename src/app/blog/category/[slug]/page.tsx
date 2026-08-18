@@ -14,7 +14,7 @@ type Props = {
 
 async function getCategory(slug: string) {
   const response = await fetch(
-    `${API_URL}/categories?slug=${encodeURIComponent(slug)}`,
+    `${API_URL}/wp-json/wp/v2/categories?slug=${encodeURIComponent(slug)}`,
     {
       next: {
         revalidate: 2,
