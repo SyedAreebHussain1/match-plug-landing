@@ -155,7 +155,7 @@ export function Posts({
   return (
     <div>
       {title && (
-        <div className="text-2xl font-bold mb-4 flex justify-center">
+        <div className="text-3xl font-bold mb-6 md:mb-10 flex justify-center">
           {title}
         </div>
       )}
